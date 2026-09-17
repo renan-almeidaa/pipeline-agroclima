@@ -25,7 +25,7 @@ on Docker Compose.
 
 | Layer | Tool | Rationale |
 |---|---|---|
-| Ingestion | Python + requests | API consumption with pagination, retry and rate limiting |
+| Ingestion | Python | REST API consumption with retry and rate limiting, plus CSV file parsing |
 | Raw | MongoDB | Semi-structured payload with unstable schema. Storing it raw allows reprocessing without calling the source again |
 | Bronze | Azure Blob + Parquet | Cheap storage, columnar format, partitioned by date |
 | Silver | PySpark | Same API as a cluster, even running locally |
