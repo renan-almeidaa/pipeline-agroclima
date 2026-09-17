@@ -8,9 +8,9 @@ productivity variation by crop and municipality.
 
 ```mermaid
 flowchart LR
-    INMET[INMET API<br/>daily weather] --> ING[Ingestion<br/>Python + requests]
+    INMET[INMET<br/>daily weather] --> ING[Ingestion<br/>Python]
     IBGE[IBGE SIDRA<br/>crop production] --> ING
-    ING --> MONGO[(MongoDB<br/>raw JSON)]
+    ING --> MONGO[(MongoDB<br/>raw payload)]
     ING --> BRONZE[Azure Blob<br/>Parquet partitioned]
     BRONZE --> SILVER[PySpark<br/>cleaning + validation]
     SILVER --> QUAR[(Quarantine<br/>rejected records)]
@@ -26,7 +26,7 @@ on Docker Compose.
 | Layer | Tool | Rationale |
 |---|---|---|
 | Ingestion | Python + requests | API consumption with pagination, retry and rate limiting |
-| Raw | MongoDB | Semi-structured payload with unstable schema; storing it raw allows reprocessing without calling the API again |
+| Raw | MongoDB | Semi-structured payload with unstable schema. Storing it raw allows reprocessing without calling the source again |
 | Bronze | Azure Blob + Parquet | Cheap storage, columnar format, partitioned by date |
 | Silver | PySpark | Same API as a cluster, even running locally |
 | Gold | PostgreSQL | Dimensional model for analytical queries |
@@ -35,8 +35,11 @@ on Docker Compose.
 
 ## Data sources
 
-- **INMET** — daily weather data from automatic stations (temperature, rainfall, humidity)
-- **IBGE / SIDRA** — Municipal Agricultural Production: planted area, output and average yield by municipality and crop
+**INMET** provides daily weather data from automatic stations, including
+temperature, rainfall and humidity.
+
+**IBGE SIDRA** provides the Municipal Agricultural Production survey (table 5457)
+with planted area, output and average yield by municipality and crop.
 
 ## Getting started
 
@@ -48,10 +51,10 @@ docker compose ps       # postgres and mongo should report healthy
 
 ## Project status
 
-Work in progress. Current stage: bronze ingestion.
+Work in progress. Current stage: local environment.
 
 - [x] Local environment (PostgreSQL + MongoDB via Docker Compose)
-- [ ] INMET ingestion with retry and structured logging
+- [ ] Weather and crop production ingestion with structured logging
 - [ ] Bronze layer as partitioned Parquet on Azure Blob
 - [ ] Silver layer with data quality validation and quarantine
 - [ ] Dimensional model in the gold layer
@@ -62,7 +65,7 @@ Work in progress. Current stage: bronze ingestion.
 
 Sections to be added as the project evolves:
 
-- **Technical decisions** — idempotency, partitioning strategy, incremental load
-- **Data quality** — implemented rules and observed metrics
-- **Results** — processed volume, runtime, rejection rate, analytical findings
+- **Technical decisions**: source selection, idempotency, partitioning strategy
+- **Data quality**: implemented rules and observed metrics
+- **Results**: processed volume, runtime, rejection rate, analytical findings
 - **Limitations and next steps**
