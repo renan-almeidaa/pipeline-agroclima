@@ -49,12 +49,39 @@ docker compose up -d
 docker compose ps       # postgres and mongo should report healthy
 ```
 
+### Development setup
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+```
+
+Linting and formatting are handled by Ruff:
+
+```bash
+ruff check .
+ruff format .
+```
+
+### Running the ingestion
+
+```bash
+python run_ingestion.py
+```
+
+Fetches crop production data for all municipalities in Paraná from the IBGE aggregates
+API, in batches, and stores the raw payload in MongoDB along with the request parameters
+used to retrieve it.
+
 ## Project status
 
-Work in progress. Current stage: local environment.
+Work in progress. Current stage: bronze ingestion.
 
 - [x] Local environment (PostgreSQL + MongoDB via Docker Compose)
-- [ ] Weather and crop production ingestion with structured logging
+- [x] Crop production ingestion from the IBGE aggregates API
+- [x] Raw payload storage in MongoDB
+- [ ] Weather data ingestion
 - [ ] Bronze layer as partitioned Parquet on Azure Blob
 - [ ] Silver layer with data quality validation and quarantine
 - [ ] Dimensional model in the gold layer
