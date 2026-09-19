@@ -29,7 +29,7 @@ def buscar_producao(codigos_municipio: list[str]) -> list[dict]:
     )
     resp = requests.get(url, timeout=300)
     resp.raise_for_status()
-    return resp.json()
+    return resp.json()[1:]  # remove o cabeçalho, que é a primeira linha da resposta
 
 
 # if __name__ == "__main__":
