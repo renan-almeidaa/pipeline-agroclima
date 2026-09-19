@@ -1,6 +1,6 @@
+from src import config
 from src.ingestion import ibge
 from src.storage import mongo
-from src import config
 
 
 def main():
@@ -22,9 +22,9 @@ def main():
             "culturas": config.CULTURAS,
             "periodos": config.PERIODOS,
             "total_registros": len(producao),
-            "municipios": lote
-            }
-        
+            "municipios": lote,
+        }
+
         mongo.salvar_payload(config.MONGO_COLECAO_PRODUCAO, producao, metadados)
         print(f"Lote {i}/{len(lotes)} salvo com sucesso! Registros: {len(producao)}")
 

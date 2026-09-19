@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from pymongo import MongoClient
 
@@ -8,8 +8,7 @@ from src import config
 def get_db():
     """Abre conexão com o MongoDB e retorna o banco configurado."""
     client = MongoClient(config.MONGO_URI)
-    return client.get_database(config.MONGO_DB) # tambem funciona client[config.MONGO_DB]
-
+    return client.get_database(config.MONGO_DB)  # tambem funciona client[config.MONGO_DB]
 
 
 def salvar_payload(colecao: str, payload: list[dict], metadados: dict) -> str:
@@ -18,13 +17,14 @@ def salvar_payload(colecao: str, payload: list[dict], metadados: dict) -> str:
     Guardar o payload como veio permite reprocessar sem chamar a fonte de novo.
     """
     documento = {
-        "ingerido_em": datetime.now(timezone.utc),
+        "ingerido_em": datetime.now(UTC),
         "metadados": metadados,
         "payload": payload,
     }
     col = get_db()[colecao]
     resultado = col.insert_one(documento)
     return str(resultado.inserted_id)
+
 
 if __name__ == "__main__":
     db = get_db()
@@ -38,11 +38,11 @@ if __name__ == "__main__":
 
     # 1. Remove o documento de teste
     db["exemplo"].delete_one({"_id": inserted_id})
-    print(f"Documento de teste removido.")
-    
+    print("Documento de teste removido.")
+
     # 2. Exclui a coleção inteira para limpar o banco
     db["exemplo"].drop()
-    print(f"Coleção 'exemplo' excluída (drop).")
-    
+    print("Coleção 'exemplo' excluída (drop).")
+
     # Agora a lista deve vir vazia [] (ou sem a coleção 'exemplo')
     print(f"DB atual: {db.list_collection_names()}")

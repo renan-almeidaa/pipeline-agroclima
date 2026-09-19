@@ -18,7 +18,11 @@ def dividir_em_lotes(itens: list, tamanho: int) -> list[list]:
 
 
 def buscar_producao(codigos_municipio: list[str]) -> list[dict]:
-    """Busca a produção agrícola de um lote de municípios (view=flat). A primeira linha da resposta é o cabeçalho, não um registro de dados."""
+    """Busca a produção agrícola de um lote de municípios.
+
+    Usa view=flat. A primeira linha da resposta é o cabeçalho, não um
+    registro de dados, e por isso é descartada.
+    """
     url = (
         f"{config.IBGE_AGREGADOS_URL}/{config.AGREGADO}"
         f"/periodos/{config.PERIODOS}"
