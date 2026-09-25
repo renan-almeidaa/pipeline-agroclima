@@ -1,13 +1,43 @@
 import requests
+from tenacity import (
+    retry,
+    retry_if_exception,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from src import config
 
+CODIGOS_TRANSITORIOS = {429, 500, 502, 503, 504}
 
+
+def _erro_transitorio(exc: BaseException) -> bool:
+    """Retorna True se vale tentar de novo."""
+    # Timeout e ConnectionError são erros de rede que podem ser transitórios.
+    if isinstance(exc, (requests.exceptions.Timeout, requests.exceptions.ConnectionError)):
+        return True
+    # HTTPError é levantado pelo raise_for_status() quando o status code indica erro.
+    # Se for erro de servidor (5xx) ou limite de requisições (429), vale tentar de novo.
+    elif isinstance(exc, requests.exceptions.HTTPError) and exc.response is not None:
+        if exc.response.status_code in CODIGOS_TRANSITORIOS:
+            return True
+    return False
+
+
+retry_ibge = retry(
+    retry=retry_if_exception(_erro_transitorio),
+    stop=stop_after_attempt(4),
+    wait=wait_exponential(multiplier=2, min=2, max=30),
+    reraise=True,
+)
+
+
+@retry_ibge
 def buscar_municipios(uf: str) -> list[dict]:
     """Retorna os municípios de uma UF a partir da API de localidades."""
 
     url = f"{config.IBGE_LOCALIDADES_URL}/estados/{uf}/municipios"
-    resp = requests.get(url, timeout=10)
+    resp = requests.get(url, timeout=300)
     resp.raise_for_status()
     return resp.json()
 
@@ -17,6 +47,7 @@ def dividir_em_lotes(itens: list, tamanho: int) -> list[list]:
     return [itens[i : i + tamanho] for i in range(0, len(itens), tamanho)]
 
 
+@retry_ibge
 def buscar_producao(codigos_municipio: list[str]) -> list[dict]:
     """Busca a produção agrícola de um lote de municípios.
 
