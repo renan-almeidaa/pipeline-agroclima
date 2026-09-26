@@ -70,9 +70,7 @@ ruff format .
 python run_ingestion.py
 ```
 
-Fetches crop production data for all municipalities in Paraná from the IBGE aggregates
-API, in batches, and stores the raw payload in MongoDB along with the request parameters
-used to retrieve it.
+Fetches crop production data for all municipalities in Paraná from the IBGE aggregates API in a single request, and stores the raw payload in MongoDB along with the request parameters used to retrieve it.
 
 ## Project status
 
