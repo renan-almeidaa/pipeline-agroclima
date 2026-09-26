@@ -27,4 +27,3 @@ CLASSIFICACAO = "782"  # produto das lavouras temporárias e permanentes
 VARIAVEIS = ["214", "216", "112"]  # quantidade produzida, área colhida, rendimento médio
 CULTURAS = ["40124", "40122"]  # soja em grão, milho em grão
 PERIODOS = "-10"  # últimos 10 períodos disponíveis
-TAMANHO_LOTE = 100  # municípios por requisição
