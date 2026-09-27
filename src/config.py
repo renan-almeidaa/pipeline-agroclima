@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
@@ -27,3 +28,8 @@ CLASSIFICACAO = "782"  # produto das lavouras temporárias e permanentes
 VARIAVEIS = ["214", "216", "112"]  # quantidade produzida, área colhida, rendimento médio
 CULTURAS = ["40124", "40122"]  # soja em grão, milho em grão
 PERIODOS = "-10"  # últimos 10 períodos disponíveis
+
+UF_SIGLA = "PR"  # Paraná
+INMET_URL = "https://portal.inmet.gov.br/uploads/dadoshistoricos/{ano}.zip"
+INMET_ANOS = range(2015, 2026)  # 2015 a 2025, cobre a safra 2015/16
+DATA_RAW_INMET = Path("data/raw/inmet")  # onde os zips baixados do INMET serão salvos
