@@ -1,6 +1,6 @@
 # Agro-climatic Data Pipeline
 
-Data pipeline that cross-references INMET daily weather series with IBGE municipal
+Data pipeline that cross-references INMET weather series with IBGE municipal
 agricultural production data to answer whether climate variation explains
 productivity variation by crop and municipality.
 
@@ -8,10 +8,12 @@ productivity variation by crop and municipality.
 
 ```mermaid
 flowchart LR
-    INMET[INMET<br/>daily weather] --> ING[Ingestion<br/>Python]
-    IBGE[IBGE SIDRA<br/>crop production] --> ING
-    ING --> MONGO[(MongoDB<br/>raw payload)]
-    ING --> BRONZE[Azure Blob<br/>Parquet partitioned]
+    INMET[INMET<br/>hourly weather] --> ING[Ingestion<br/>Python]
+    IBGE[IBGE aggregates API<br/>crop production] --> ING
+    ING --> MONGO[(MongoDB<br/>raw API payload)]
+    ING --> CSV[(Local files<br/>raw INMET CSVs)]
+    MONGO --> BRONZE[Azure Blob<br/>Parquet partitioned]
+    CSV --> BRONZE
     BRONZE --> SILVER[PySpark<br/>cleaning + validation]
     SILVER --> QUAR[(Quarantine<br/>rejected records)]
     SILVER --> GOLD[(PostgreSQL<br/>dimensional model)]
@@ -25,8 +27,8 @@ on Docker Compose.
 
 | Layer | Tool | Rationale |
 |---|---|---|
-| Ingestion | Python | REST API consumption with retry and rate limiting, plus CSV file parsing |
-| Raw | MongoDB | Semi-structured payload with unstable schema. Storing it raw allows reprocessing without calling the source again |
+| Ingestion | Python | REST API consumption and annual archive download, with retry and exponential backoff for transient errors |
+| Raw | MongoDB + local CSV files | Each source is stored in its native format as received, allowing reprocessing without calling the source again |
 | Bronze | Azure Blob + Parquet | Cheap storage, columnar format, partitioned by date |
 | Silver | PySpark | Same API as a cluster, even running locally |
 | Gold | PostgreSQL | Dimensional model for analytical queries |
@@ -35,11 +37,12 @@ on Docker Compose.
 
 ## Data sources
 
-**INMET** provides daily weather data from automatic stations, including
-temperature, rainfall and humidity.
+**INMET** provides hourly weather data from automatic stations (rainfall, temperature,
+humidity, among others), published as one annual archive per year covering every station
+in Brazil. The pipeline downloads 2015 to 2025 and keeps only the stations in Paraná.
 
-**IBGE SIDRA** provides the Municipal Agricultural Production survey (table 5457)
-with planted area, output and average yield by municipality and crop.
+**IBGE** provides the Municipal Agricultural Production survey (table 5457) through its
+aggregates API, with planted area, output and average yield by municipality and crop.
 
 ## Getting started
 
@@ -70,16 +73,24 @@ ruff format .
 python run_ingestion.py
 ```
 
-Fetches crop production data for all municipalities in Paraná from the IBGE aggregates API in a single request, and stores the raw payload in MongoDB along with the request parameters used to retrieve it.
+Runs two steps:
+
+- **Crop production:** fetches data for all municipalities in Paraná from the IBGE
+  aggregates API in a single request, and stores the raw payload in MongoDB along with
+  the request parameters used to retrieve it.
+- **Weather:** downloads the INMET annual archives, extracts only the station files for
+  Paraná into `data/raw/inmet/PR/{year}/`, and deletes the national archive afterwards.
+  Years already extracted are skipped.
 
 ## Project status
 
-Work in progress. Current stage: bronze ingestion.
+Work in progress. Current stage: ingestion layer.
 
 - [x] Local environment (PostgreSQL + MongoDB via Docker Compose)
 - [x] Crop production ingestion from the IBGE aggregates API
-- [x] Raw payload storage in MongoDB
-- [ ] Weather data ingestion
+- [x] Weather data ingestion from INMET annual archives
+- [x] Raw storage (MongoDB for API payloads, CSV files for INMET)
+- [ ] Structured logging and tests for the ingestion layer
 - [ ] Bronze layer as partitioned Parquet on Azure Blob
 - [ ] Silver layer with data quality validation and quarantine
 - [ ] Dimensional model in the gold layer
