@@ -19,9 +19,9 @@ def baixar_ano(ano: int, destino: Path) -> Path:
 
     # --- EVITA DOWNLOAD REPETIDO ---
     if zip_path.exists():
-        logger.info(" Arquivo %s já existe. Pulando download.", zip_path.name)
+        logger.info("Arquivo %s já existe. Pulando download.", zip_path.name)
         return zip_path
-    
+
     response = requests.get(url, headers=HEADERS, timeout=60, stream=True)
     response.raise_for_status()
 
@@ -29,7 +29,7 @@ def baixar_ano(ano: int, destino: Path) -> Path:
         for chunk in response.iter_content(chunk_size=1024 * 1024):  # 1 MB
             if chunk:
                 f.write(chunk)
-    logger.info(" Baixado: %s", zip_path.name)
+    logger.info("Baixado: %s", zip_path.name)
     return zip_path
 
 
@@ -45,7 +45,7 @@ def extrair_estacoes_uf(zip_path: Path, uf: str, destino: Path) -> list[Path]:
                 continue
             caminho = destino / nome  # Caminho completo onde o arquivo será extraído
             if not caminho.exists():  # Evita extração repetida
-                logger.debug("    Extraindo: %s", nome_no_zip)
+                logger.debug("Extraindo: %s", nome_no_zip)
                 with (
                     zf.open(nome_no_zip) as origem,
                     open(caminho, "wb") as destino_arquivo,

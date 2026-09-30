@@ -7,6 +7,7 @@ from src.storage import mongo
 
 logger = logging.getLogger(__name__)
 
+
 def ingerir_producao():
     producao = ibge.buscar_producao(config.UF_CODIGO)
     metadados = {
@@ -28,12 +29,12 @@ def ingerir_clima():
     for ano in config.INMET_ANOS:
         destino_ano = config.DATA_RAW_INMET / config.UF_SIGLA / str(ano)
         if destino_ano.exists() and any(destino_ano.glob("*.csv")):
-            logger.info(" Ano %s já processado. Pulando.", ano)
+            logger.info("Ano %s já processado. Pulando.", ano)
             continue
         zip_path = inmet.baixar_ano(ano, config.DATA_RAW_INMET / "_zips")
         arquivos = inmet.extrair_estacoes_uf(zip_path, config.UF_SIGLA, destino_ano)
         zip_path.unlink()
-        logger.info(" Ano %s processado. Estações: %s", ano, len(arquivos))
+        logger.info("Ano %s processado. Estações: %s", ano, len(arquivos))
 
 
 def main():
