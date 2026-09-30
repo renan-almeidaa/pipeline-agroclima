@@ -1,3 +1,5 @@
+import logging
+
 import requests
 from tenacity import (
     retry,
@@ -8,6 +10,7 @@ from tenacity import (
 
 from src import config
 
+logger = logging.getLogger(__name__)
 CODIGOS_TRANSITORIOS = {429, 500, 502, 503, 504}
 
 
