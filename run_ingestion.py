@@ -1,6 +1,11 @@
+import logging
+
 from src import config
 from src.ingestion import ibge, inmet
+from src.logging_config import configurar_logging
 from src.storage import mongo
+
+logger = logging.getLogger(__name__)
 
 
 def ingerir_producao():
@@ -17,24 +22,23 @@ def ingerir_producao():
     }
 
     mongo.salvar_payload(config.MONGO_COLECAO_PRODUCAO, producao, metadados)
-    print(f"Produção salva com sucesso! Registros: {len(producao)}")
+    logger.info("Produção salva com sucesso! Registros: %s", len(producao))
 
 
 def ingerir_clima():
     for ano in config.INMET_ANOS:
         destino_ano = config.DATA_RAW_INMET / config.UF_SIGLA / str(ano)
-        # TODO: se destino_ano já tiver CSVs, pular o ano (evita baixar 100+ MB à toa)
         if destino_ano.exists() and any(destino_ano.glob("*.csv")):
-            print(f"-> Ano {ano} já processado. Pulando.")
+            logger.info("Ano %s já processado. Pulando.", ano)
             continue
         zip_path = inmet.baixar_ano(ano, config.DATA_RAW_INMET / "_zips")
         arquivos = inmet.extrair_estacoes_uf(zip_path, config.UF_SIGLA, destino_ano)
         zip_path.unlink()
-        # TODO: print do ano e da quantidade de estações
-        print(f"-> Ano {ano} processado. Estações: {len(arquivos)}")
+        logger.info("Ano %s processado. Estações: %s", ano, len(arquivos))
 
 
 def main():
+    configurar_logging()
     ingerir_producao()
     ingerir_clima()
 

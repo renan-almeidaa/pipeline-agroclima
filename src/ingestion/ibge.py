@@ -1,5 +1,8 @@
+import logging
+
 import requests
 from tenacity import (
+    before_sleep_log,
     retry,
     retry_if_exception,
     stop_after_attempt,
@@ -8,6 +11,7 @@ from tenacity import (
 
 from src import config
 
+logger = logging.getLogger(__name__)
 CODIGOS_TRANSITORIOS = {429, 500, 502, 503, 504}
 
 
@@ -28,6 +32,7 @@ retry_ibge = retry(
     retry=retry_if_exception(_erro_transitorio),
     stop=stop_after_attempt(4),
     wait=wait_exponential(multiplier=2, min=2, max=30),
+    before_sleep=before_sleep_log(logger, logging.WARNING),
     reraise=True,
 )
 
