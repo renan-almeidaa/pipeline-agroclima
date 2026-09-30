@@ -6,3 +6,5 @@ data/
 .pytest_cache/
 .ruff_cache/
 anotacoes_do_projeto.md
+playground-*.mongodb.js
+*.ipynb
