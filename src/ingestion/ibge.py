@@ -2,6 +2,7 @@ import logging
 
 import requests
 from tenacity import (
+    before_sleep_log,
     retry,
     retry_if_exception,
     stop_after_attempt,
@@ -18,11 +19,13 @@ def _erro_transitorio(exc: BaseException) -> bool:
     """Retorna True se vale tentar de novo."""
     # Timeout e ConnectionError são erros de rede que podem ser transitórios.
     if isinstance(exc, (requests.exceptions.Timeout, requests.exceptions.ConnectionError)):
+        logger.warning(" Erro transitorio: %s", exc)
         return True
     # HTTPError é levantado pelo raise_for_status() quando o status code indica erro.
     # Se for erro de servidor (5xx) ou limite de requisições (429), vale tentar de novo.
     elif isinstance(exc, requests.exceptions.HTTPError) and exc.response is not None:
         if exc.response.status_code in CODIGOS_TRANSITORIOS:
+            logger.warning(" Erro transitorio: %s", exc)
             return True
     return False
 
@@ -31,6 +34,7 @@ retry_ibge = retry(
     retry=retry_if_exception(_erro_transitorio),
     stop=stop_after_attempt(4),
     wait=wait_exponential(multiplier=2, min=2, max=30),
+    before_sleep=before_sleep_log(logger, logging.WARNING),
     reraise=True,
 )
 
