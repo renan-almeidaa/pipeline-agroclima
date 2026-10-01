@@ -15,9 +15,9 @@ def _http_error(status: int) -> requests.HTTPError:
     "exc, esperado",
     [
         # TODO: Timeout -> True
-        (requests.exceptions.Timeout, True), 
+        (requests.exceptions.Timeout(), True), 
         # TODO: ConnectionError -> True
-        (requests.exceptions.ConnectionError, True),
+        (requests.exceptions.ConnectionError(), True),
         # TODO: 503 e 429 -> True
         (_http_error(503), True),
         (_http_error(429), True),
