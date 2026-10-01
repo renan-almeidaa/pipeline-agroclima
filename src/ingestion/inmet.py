@@ -54,5 +54,5 @@ def extrair_estacoes_uf(zip_path: Path, uf: str, destino: Path) -> list[Path]:
                         origem.read()
                     )  # Lê o conteúdo do arquivo dentro do zip e escreve no destino
 
-            extraidos.append(caminho)
-    return extraidos
+            extraidos.append(caminho) 
+    return extraidos # Devolve a lista de caminhos dos arquivos extraídos
