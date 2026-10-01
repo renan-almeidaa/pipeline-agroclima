@@ -67,12 +67,17 @@ source .venv/bin/activate
 pip install -r requirements-dev.txt
 ```
 
-Linting and formatting are handled by Ruff:
+Linting and formatting are handled by Ruff, and tests run with pytest:
 
 ```bash
 ruff check .
 ruff format .
+pytest -v
 ```
+
+Every pull request to `main` runs the same checks on GitHub Actions (Ruff and pytest), and
+the `main` branch requires them to pass before merging. Tests do not depend on external
+services or credentials, so they run without a `.env` file.
 
 ### Running the ingestion
 
@@ -91,13 +96,14 @@ Runs two steps:
 
 ## Project status
 
-Work in progress. Current stage: ingestion layer.
+Work in progress. Current stage: bronze layer.
 
 - [x] Local environment (PostgreSQL + MongoDB via Docker Compose)
 - [x] Crop production ingestion from the IBGE aggregates API
 - [x] Weather data ingestion from INMET annual archives
 - [x] Raw storage (MongoDB for API payloads, CSV files for INMET)
-- [ ] Structured logging and tests for the ingestion layer
+- [x] Structured logging and tests for the ingestion layer
+- [x] CI with GitHub Actions (lint and tests on every pull request)
 - [ ] Bronze layer as partitioned Parquet on Azure Blob
 - [ ] Silver layer on Databricks, written as Delta Lake, with data quality validation and quarantine
 - [ ] Dimensional model in the gold layer
