@@ -14,19 +14,13 @@ def _http_error(status: int) -> requests.HTTPError:
 @pytest.mark.parametrize(
     "exc, esperado",
     [
-        # TODO: Timeout -> True
         (requests.exceptions.Timeout(), True),
-        # TODO: ConnectionError -> True
         (requests.exceptions.ConnectionError(), True),
-        # TODO: 503 e 429 -> True
         (_http_error(503), True),
         (_http_error(429), True),
-        # TODO: 404 e 400 -> False
         (_http_error(404), False),
         (_http_error(400), False),
-        # TODO: ValueError -> False
         (ValueError(), False),
-        # TODO: HTTPError sem response -> ?
         (requests.HTTPError(), False),
     ],
 )
