@@ -15,7 +15,7 @@ def _http_error(status: int) -> requests.HTTPError:
     "exc, esperado",
     [
         # TODO: Timeout -> True
-        (requests.exceptions.Timeout(), True), 
+        (requests.exceptions.Timeout(), True),
         # TODO: ConnectionError -> True
         (requests.exceptions.ConnectionError(), True),
         # TODO: 503 e 429 -> True
@@ -27,7 +27,7 @@ def _http_error(status: int) -> requests.HTTPError:
         # TODO: ValueError -> False
         (ValueError(), False),
         # TODO: HTTPError sem response -> ?
-        (requests.HTTPError(), False)
+        (requests.HTTPError(), False),
     ],
 )
 def test_erro_transitorio(exc, esperado):
