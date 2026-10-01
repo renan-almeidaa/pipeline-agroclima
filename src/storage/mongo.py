@@ -7,7 +7,7 @@ from src import config
 
 def get_db():
     """Abre conexão com o MongoDB e retorna o banco configurado."""
-    client = MongoClient(config.MONGO_URI)
+    client = MongoClient(config.mongo_uri())
     return client.get_database(config.MONGO_DB)  # tambem funciona client[config.MONGO_DB]
 
 

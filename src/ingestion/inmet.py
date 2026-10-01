@@ -37,7 +37,6 @@ def extrair_estacoes_uf(zip_path: Path, uf: str, destino: Path) -> list[Path]:
     """Extrai do zip só os CSVs das estações da UF e devolve os caminhos."""
     extraidos = []
     destino.mkdir(parents=True, exist_ok=True)  # Garante que a pasta destino existe
-    # TODO: abrir com zipfile.ZipFile
     with zipfile.ZipFile(zip_path) as zf:
         for nome_no_zip in zf.namelist():  # Itera sobre os nomes dos arquivos dentro do zip
             nome = Path(nome_no_zip).name  # Pega só o nome do arquivo, sem o caminho
@@ -55,4 +54,4 @@ def extrair_estacoes_uf(zip_path: Path, uf: str, destino: Path) -> list[Path]:
                     )  # Lê o conteúdo do arquivo dentro do zip e escreve no destino
 
             extraidos.append(caminho)
-    return extraidos
+    return extraidos  # Devolve a lista de caminhos dos arquivos extraídos
